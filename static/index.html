@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Automated Interviewer – Live Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --surface: #1a1a20;
+      --border: #2a2a32;
+      --text: #e8e8ed;
+      --muted: #8888a0;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --success: #22c55e;
+      --warning: #eab308;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    button {
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.65rem 1.25rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-start {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-start:hover { background: var(--accent-hover); }
+    .btn-start:disabled {
+      background: var(--border);
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+    .btn-stop {
+      background: #dc2626;
+      color: #fff;
+    }
+    .btn-stop:hover { background: #ef4444; }
+    .btn-stop:disabled {
+      background: var(--border);
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+    .btn-test {
+      background: var(--border);
+      color: var(--text);
+    }
+    .btn-test:hover { background: #3a3a45; }
+    .btn-test:disabled { opacity: 0.6; cursor: not-allowed; }
+    .phase-badge {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .phase-presenting { background: #1e3a5f; color: #93c5fd; }
+    .phase-asking { background: #422006; color: #fcd34d; }
+    .phase-listening { background: #14532d; color: #86efac; }
+    .phase-ended { background: var(--border); color: var(--muted); }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .panel h2 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 0.75rem 0;
+    }
+    .panel .content {
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .panel .content.empty { color: var(--muted); font-style: italic; }
+    .question-box {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+      border: 1px solid #4338ca;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .question-box h2 { color: #c7d2fe; margin-top: 0; }
+    .question-box .content { color: #e0e7ff; max-height: none; }
+    .scores-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    .score-card {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      min-width: 100px;
+    }
+    .score-card strong { display: block; font-size: 1.25rem; color: var(--accent); }
+    .score-card span { font-size: 0.8rem; color: var(--muted); }
+    .report-summary {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      color: #cbd5e1;
+    }
+    .report-link {
+      display: inline-block;
+      margin-top: 1rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .report-link:hover { text-decoration: underline; }
+    .ws-status {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .ws-status .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .ws-status.connected .dot { background: var(--success); }
+    .top-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div>
+        <h1>AI Automated Interviewer</h1>
+        <p class="subtitle">Present your project (screen + voice). The system will ask context-aware questions and produce a score + feedback report.</p>
+      </div>
+      <div class="ws-status" id="wsStatus">
+        <span class="dot"></span>
+        <span id="wsLabel">Connecting…</span>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn-start" id="btnStart">Start Interview</button>
+      <button class="btn-stop" id="btnStop" disabled>End Interview</button>
+      <button class="btn-test" id="btnTestVoice">Test voice (record 6s + transcribe)</button>
+    </div>
+    <div class="panel" id="voiceTestResult" style="display: none;">
+      <h2>Voice test result</h2>
+      <div id="voiceTestContent"></div>
+    </div>
+    <div id="phaseBadge" class="phase-badge phase-ended" style="display: none;">—</div>
+    <div class="question-box" id="questionBox" style="display: none;">
+      <h2>Current question</h2>
+      <div class="content" id="currentQuestion"></div>
+    </div>
+    <div class="panel">
+      <h2>Live transcript</h2>
+      <div class="content empty" id="transcript">No speech yet.</div>
+    </div>
+    <div class="panel">
+      <h2>Screen content (OCR)</h2>
+      <div class="content empty" id="screenContent">No screen content yet.</div>
+    </div>
+    <div class="panel" id="reportPanel" style="display: none;">
+      <h2>Report</h2>
+      <div id="reportScores" class="scores-row"></div>
+      <div id="reportSummary" class="report-summary"></div>
+      <a id="reportLink" class="report-link" href="#" target="_blank" rel="noopener">Open full report (HTML)</a>
+    </div>
+  </div>
+  <script>
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    const btnTestVoice = document.getElementById('btnTestVoice');
+    const voiceTestResult = document.getElementById('voiceTestResult');
+    const voiceTestContent = document.getElementById('voiceTestContent');
+    const phaseBadge = document.getElementById('phaseBadge');
+    const questionBox = document.getElementById('questionBox');
+    const currentQuestion = document.getElementById('currentQuestion');
+    const transcriptEl = document.getElementById('transcript');
+    const screenContentEl = document.getElementById('screenContent');
+    const reportPanel = document.getElementById('reportPanel');
+    const reportScores = document.getElementById('reportScores');
+    const reportSummary = document.getElementById('reportSummary');
+    const reportLink = document.getElementById('reportLink');
+    const wsStatus = document.getElementById('wsStatus');
+    const wsLabel = document.getElementById('wsLabel');
+
+    const wsUrl = (location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + location.host + '/ws';
+    let ws = null;
+
+    function connectWs() {
+      ws = new WebSocket(wsUrl);
+      ws.onopen = () => {
+        wsStatus.classList.add('connected');
+        wsLabel.textContent = 'Live';
+      };
+      ws.onclose = () => {
+        wsStatus.classList.remove('connected');
+        wsLabel.textContent = 'Reconnecting…';
+        setTimeout(connectWs, 2000);
+      };
+      ws.onmessage = (ev) => {
+        try {
+          const msg = JSON.parse(ev.data);
+          if (msg.type === 'state' && msg.data) updateState(msg.data);
+          if (msg.type === 'report' && msg.data) showReport(msg.data);
+        } catch (e) {}
+      };
+    }
+    connectWs();
+
+    function updateState(data) {
+      phaseBadge.textContent = data.phase || '—';
+      phaseBadge.className = 'phase-badge phase-' + (data.phase || 'ended');
+      phaseBadge.style.display = 'inline-block';
+      if (data.current_question) {
+        questionBox.style.display = 'block';
+        currentQuestion.textContent = data.current_question;
+      }
+      transcriptEl.textContent = data.last_transcript || 'No speech yet.';
+      transcriptEl.classList.toggle('empty', !data.last_transcript);
+      screenContentEl.textContent = data.last_screen_content || 'No screen content yet.';
+      screenContentEl.classList.toggle('empty', !data.last_screen_content);
+      if (data.report && data.report.per_answer_len > 0) {
+        reportScores.innerHTML = [
+          ['Overall', data.report.overall_score],
+          ['Technical depth', data.report.technical_depth],
+          ['Clarity', data.report.clarity],
+          ['Originality', data.report.originality],
+          ['Understanding', data.report.understanding]
+        ].map(([label, val]) =>
+          `<div class="score-card"><strong>${Number(val).toFixed(1)}</strong><span>${label}</span></div>`
+        ).join('');
+        reportSummary.textContent = data.report.summary || '';
+        reportPanel.style.display = 'block';
+      }
+    }
+
+    function showReport(data) {
+      reportPanel.style.display = 'block';
+      reportScores.innerHTML = [
+        ['Overall', data.overall_score],
+        ['Technical depth', data.technical_depth],
+        ['Clarity', data.clarity],
+        ['Originality', data.originality],
+        ['Understanding', data.understanding]
+      ].map(([label, val]) =>
+        `<div class="score-card"><strong>${Number(val).toFixed(1)}</strong><span>${label}</span></div>`
+      ).join('');
+      reportSummary.textContent = data.summary || '';
+      if (data.report_url) {
+        reportLink.href = data.report_url;
+        reportLink.style.display = 'inline-block';
+      } else {
+        reportLink.style.display = 'none';
+      }
+      btnStart.disabled = false;
+      btnStop.disabled = true;
+    }
+
+    btnStart.addEventListener('click', async () => {
+      btnStart.disabled = true;
+      btnStop.disabled = false;
+      try {
+        const r = await fetch('/interview/start', { method: 'POST' });
+        const j = await r.json();
+        if (j.status !== 'started' && j.status !== 'already_running') {
+          btnStart.disabled = false;
+          btnStop.disabled = true;
+          alert(j.message || 'Failed to start');
+        }
+      } catch (e) {
+        btnStart.disabled = false;
+        btnStop.disabled = true;
+        alert('Network error: ' + e.message);
+      }
+    });
+
+    btnStop.addEventListener('click', async () => {
+      try {
+        await fetch('/interview/stop', { method: 'POST' });
+      } catch (e) {}
+      btnStop.disabled = true;
+    });
+
+    btnTestVoice.addEventListener('click', async () => {
+      btnTestVoice.disabled = true;
+      voiceTestResult.style.display = 'block';
+      voiceTestContent.textContent = 'Recording 6 seconds… speak now. Then transcribing…';
+      try {
+        const r = await fetch('/api/audio/test', { method: 'POST' });
+        const j = await r.json();
+        if (j.ok) {
+          voiceTestContent.innerHTML = '<strong>Transcript:</strong> ' + (j.transcript || '(none)') + '<br><small>Peak level: ' + (j.peak != null ? j.peak : '') + '</small>';
+        } else {
+          voiceTestContent.innerHTML = '<strong>Error:</strong> ' + (j.error || 'Unknown') + (j.peak != null ? '<br><small>Peak: ' + j.peak + '</small>' : '');
+        }
+      } catch (e) {
+        voiceTestContent.textContent = 'Request failed: ' + e.message;
+      }
+      btnTestVoice.disabled = false;
+    });
+
+    // Poll status on load and when tab visible (fallback if WS fails)
+    async function pollStatus() {
+      try {
+        const r = await fetch('/interview/status');
+        const j = await r.json();
+        if (j.state) updateState(j.state);
+        if (j.report) showReport(j.report);
+      } catch (e) {}
+    }
+    setInterval(pollStatus, 4000);
+    pollStatus();
+
+    // Fetch last report on load
+    fetch('/interview/report').then(r => r.json()).then(j => {
+      if (j.report) showReport(j.report);
+    }).catch(() => {});
+  </script>
+</body>
+</html>
