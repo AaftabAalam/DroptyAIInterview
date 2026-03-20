@@ -1,6 +1,6 @@
-"""Speech-to-Text helpers using faster-whisper for uploaded audio files."""
 from dataclasses import dataclass
 from pathlib import Path
+import platform
 
 try:
     from faster_whisper import WhisperModel
@@ -17,7 +17,6 @@ class TranscriptSegment:
 
 
 class SpeechToTextService:
-    """Transcribe uploaded audio files with faster-whisper."""
 
     def __init__(self, model_size: str = "base", device: str = "auto"):
         self.model_size = model_size
@@ -28,19 +27,48 @@ class SpeechToTextService:
         if WhisperModel is None:
             raise RuntimeError("faster-whisper not installed. pip install faster-whisper")
         if self._model is None:
-            compute_type = "float16" if self.device == "cuda" else "int8"
-            self._model = WhisperModel(self.model_size, device=self.device, compute_type=compute_type)
+            self._model = self._load_model()
         return self._model
+
+    def _load_model(self):
+        load_errors: list[str] = []
+        for compute_type in self._candidate_compute_types():
+            try:
+                return WhisperModel(self.model_size, device=self.device, compute_type=compute_type)
+            except Exception as exc:
+                load_errors.append(f"{compute_type}: {exc}")
+        joined = "; ".join(load_errors) or "unknown loading error"
+        raise RuntimeError(
+            "Unable to load the Whisper model for transcription. "
+            f"Tried compute types {', '.join(self._candidate_compute_types())}. Details: {joined}"
+        )
+
+    def _candidate_compute_types(self) -> list[str]:
+        normalized_device = (self.device or "auto").lower()
+        if normalized_device == "cuda":
+            return ["float16", "int8_float16", "int8"]
+        if normalized_device == "cpu":
+            return ["int8", "float32"]
+        if platform.system().lower() == "windows":
+            return ["int8", "float32"]
+        return ["int8", "float32"]
 
     def transcribe_file(self, path: Path) -> list[TranscriptSegment]:
         model = self._get_model()
-        segments, _ = model.transcribe(
-            str(path),
-            language="en",
-            beam_size=1,
-            vad_filter=True,
-            vad_parameters=dict(min_silence_duration_ms=500),
-        )
+        try:
+            segments, _ = model.transcribe(
+                str(path),
+                language="en",
+                beam_size=1,
+                vad_filter=True,
+                vad_parameters=dict(min_silence_duration_ms=500),
+            )
+        except Exception as exc:
+            raise RuntimeError(
+                "Whisper could not decode the uploaded audio. "
+                "On Windows, make sure the browser is opened on localhost/HTTPS and try recording again. "
+                f"Original error: {exc}"
+            ) from exc
         return [
             TranscriptSegment(text=segment.text.strip(), start=segment.start, end=segment.end, is_final=True)
             for segment in segments

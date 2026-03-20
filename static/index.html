@@ -366,7 +366,7 @@
           </div>
           <div class="summary" style="margin-bottom: 16px;">
             <strong>How it works</strong>
-            <p class="muted" id="interviewHint">Click `Start Interview`, answer the question by recording or typing, review the transcript in the answer box, then click `Send Answer` to move to the next question.</p>
+            <p class="muted" id="interviewHint">Click `Start Interview`, answer the question by recording or typing, review the transcript in the answer box, then click `Send Answer` to move to the next question. For direct browser mic recording, open the app on localhost or HTTPS.</p>
           </div>
           <div class="question hidden" id="questionBox">
             <small id="questionCount">Question 1</small>
@@ -378,7 +378,7 @@
               <button class="primary" id="sendBtn" disabled>Send Answer</button>
             </div>
           </div>
-          <input id="audioCaptureInput" type="file" accept="audio/*" capture="microphone" class="hidden">
+          <input id="audioCaptureInput" type="file" accept="audio/*,.webm,.wav,.mp3,.m4a,.ogg" capture="microphone" class="hidden">
           <div class="feedback-note" id="feedbackNote"></div>
         </div>
 

@@ -1,19 +1,10 @@
-# Environment variables
 .env
 .env.*
 !.env.example
-
-# Python cache
 __pycache__/
 *.pyc
-
-# OS files
 .DS_Store
-
-# Logs / reports (optional)
 reports/
-
-# Virtual environment (if any)
 venv/
 .env/
 .venv/

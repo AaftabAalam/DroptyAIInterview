@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-"""Run the Automated Interviewer web app."""
 import uvicorn
 
 if __name__ == "__main__":

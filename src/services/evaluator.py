@@ -1,4 +1,3 @@
-"""Aggregates per-answer scores and produces the final interview feedback report."""
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -6,8 +5,6 @@ from typing import Any
 
 @dataclass
 class AnswerEvaluation:
-    """One Q&A evaluation."""
-
     question: str
     answer: str
     communication: int
@@ -20,8 +17,6 @@ class AnswerEvaluation:
 
 @dataclass
 class FeedbackReport:
-    """Final score and feedback report."""
-
     overall_score: float  # 0-100
     communication: float
     technical_relevance: float
@@ -33,8 +28,6 @@ class FeedbackReport:
 
 
 class EvaluatorService:
-    """Compute aggregated scores and generate the final report."""
-
     def add_evaluation(
         self,
         report: FeedbackReport,
@@ -42,7 +35,6 @@ class EvaluatorService:
         answer: str,
         eval_data: dict[str, Any],
     ) -> None:
-        """Append one answer evaluation to the report."""
         report.per_answer.append(
             AnswerEvaluation(
                 question=question,
@@ -57,7 +49,6 @@ class EvaluatorService:
         )
 
     def finalize_report(self, report: FeedbackReport) -> FeedbackReport:
-        """Compute overall scores and summary."""
         if not report.per_answer:
             report.overall_score = 0.0
             report.communication = 0.0
@@ -85,7 +76,6 @@ class EvaluatorService:
         return report
 
     def _generate_summary(self, report: FeedbackReport) -> str:
-        """Generate a compact narrative summary from the configured criteria."""
         parts: list[str] = []
         parts.append(_summary_line("Communication", report.communication, "Keep answers more conversational and better structured."))
         parts.append(_summary_line("Technical relevance", report.technical_relevance, "Tie each answer more directly to the tools, decisions, and outcomes from the resume projects."))
@@ -95,7 +85,6 @@ class EvaluatorService:
         return " ".join(parts)
 
     def save_report(self, report: FeedbackReport, path: Path) -> None:
-        """Write report to HTML file."""
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(self._report_to_html(report), encoding="utf-8")
 

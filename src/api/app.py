@@ -1,4 +1,3 @@
-"""FastAPI application for the resume-based interview flow with browser-recorded answers."""
 import asyncio
 import time
 from dataclasses import dataclass, field
@@ -29,7 +28,7 @@ _last_report: dict[str, Any] | None = None
 
 @dataclass
 class InterviewSession:
-    phase: str = "upload"  # upload | ready | answering | ended
+    phase: str = "upload"
     uploaded_filename: str = ""
     upload_message: str = ""
     upload_stage: str = "idle"
@@ -276,6 +275,11 @@ async def interview_transcribe(audio: UploadFile = File(...)):
             {"status": "error", "message": f"Transcription failed: {exc}"},
             status_code=400,
         )
+    finally:
+        try:
+            temp_audio_path.unlink(missing_ok=True)
+        except Exception:
+            pass
 
     _session.last_transcript = transcript
     await _push_state()

@@ -1,4 +1,3 @@
-"""Application configuration."""
 import os
 from pathlib import Path
 
@@ -6,15 +5,13 @@ try:
     from pydantic_settings import BaseSettings
 
     class Settings(BaseSettings):
-        """App settings from env or defaults."""
-
         ollama_base_url: str = "http://localhost:11434"
         ollama_model: str = "llama3.2"
         whisper_model_size: str = "base"
         whisper_device: str = "auto"
         audio_sample_rate: int = 16000
         audio_chunk_seconds: float = 1.5
-        audio_input_device: int | None = None  # sounddevice input device index; None = default
+        audio_input_device: int | None = None
         screen_capture_interval_sec: float = 8.0
         ocr_languages: list[str] = ["en"]
         max_questions: int = 3
@@ -30,7 +27,6 @@ try:
             env_file = ".env"
 
 except ImportError:
-    # Fallback without pydantic-settings: use os.environ
     class Settings:
         def __init__(self):
             p = Path(__file__).resolve().parent

@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-"""Quick checks: config, server root, and optional Ollama. Run from project root."""
 import sys
 from pathlib import Path
 
-# Ensure we're in project root
+
 root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(root))
 

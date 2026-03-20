@@ -1,4 +1,3 @@
-"""LLM service using Ollama for resume extraction, question generation, and answer evaluation."""
 import json
 from typing import Any
 
@@ -11,8 +10,6 @@ except ImportError:
 
 
 class LLMService:
-    """Generate structured interview content via Ollama."""
-
     def __init__(self, base_url: str = "http://localhost:11434", model: str = "llama3.2"):
         self.base_url = base_url.rstrip("/")
         self.model = model
@@ -30,7 +27,6 @@ class LLMService:
             return False
 
     def extract_resume_profile(self, resume_text: str) -> dict[str, Any]:
-        """Extract structured candidate information from resume text."""
         sys_prompt = """You extract resume data into structured JSON.
 Return JSON only with this exact structure:
 {
@@ -83,7 +79,6 @@ Rules:
         answers: list[str],
         question_number: int,
     ) -> str:
-        """Generate the next interview question from resume skills and projects."""
         sys_prompt = """You are a technical interviewer.
 Ask exactly one concise interview question at a time.
 Base questions on the candidate's resume, especially:
@@ -124,7 +119,6 @@ Output only the question."""
         answer: str,
         resume_profile: dict[str, Any],
     ) -> dict[str, Any]:
-        """Evaluate an answer on the required report dimensions."""
         sys_prompt = """You evaluate interview answers.
 Return JSON only with this exact structure:
 {

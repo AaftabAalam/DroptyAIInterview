@@ -1,4 +1,3 @@
-"""Utilities for reading uploaded resume files into plain text."""
 from pathlib import Path
 
 
@@ -7,7 +6,7 @@ class ResumeParseError(RuntimeError):
 
 
 class ResumeParserService:
-    """Read supported resume file types into text."""
+
 
     SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
 

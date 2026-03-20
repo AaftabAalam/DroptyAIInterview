@@ -1,4 +1,3 @@
-"""Text-to-Speech for speaking interview questions."""
 import asyncio
 
 try:
