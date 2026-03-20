@@ -1,4 +1,4 @@
-# AI-Driven Automated Interviewer - Dependencies
+# IntelliInterview dependencies
 # Python 3.10+
 
 # Backend & API
@@ -7,23 +7,17 @@ uvicorn[standard]>=0.27.0
 python-multipart>=0.0.6
 websockets>=12.0
 
-# Screen capture & OCR
-mss>=9.0.1
-Pillow>=10.2.0
-easyocr>=1.7.1
-numpy>=1.26.0
-
-# Speech-to-Text (local, free)
-faster-whisper>=1.0.0
-sounddevice>=0.4.6
-scipy>=1.12.0
-
-# Text-to-Speech (free)
-edge-tts>=6.1.9
-
-# LLM (Ollama - local, free)
+# LLM
 ollama>=0.3.0
 httpx>=0.26.0
+
+# Resume parsing
+pypdf>=5.0.0
+python-docx>=1.1.2
+
+# Speech-to-text
+faster-whisper>=1.0.0
+numpy>=1.26.0
 
 # Utilities
 pydantic>=2.5.0

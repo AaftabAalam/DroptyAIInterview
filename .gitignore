@@ -16,3 +16,5 @@ reports/
 # Virtual environment (if any)
 venv/
 .env/
+.venv/
+tmp/

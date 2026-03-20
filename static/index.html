@@ -3,377 +3,774 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI Automated Interviewer – Live Demo</title>
+  <title>IntelliInterview</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0f0f12;
-      --surface: #1a1a20;
-      --border: #2a2a32;
-      --text: #e8e8ed;
-      --muted: #8888a0;
-      --accent: #6366f1;
-      --accent-hover: #818cf8;
-      --success: #22c55e;
-      --warning: #eab308;
+      --bg: #f5efe3;
+      --paper: rgba(255, 252, 246, 0.94);
+      --ink: #1d2433;
+      --muted: #6a7180;
+      --line: rgba(29, 36, 51, 0.12);
+      --accent: #c95b33;
+      --accent-dark: #9f4525;
+      --accent-soft: #fff1ea;
+      --success: #237a57;
+      --shadow: 0 20px 60px rgba(56, 42, 18, 0.12);
     }
+
     * { box-sizing: border-box; }
+
     body {
-      font-family: 'DM Sans', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
       margin: 0;
       min-height: 100vh;
-      line-height: 1.5;
+      font-family: "Manrope", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(201, 91, 51, 0.20), transparent 28%),
+        radial-gradient(circle at top right, rgba(35, 122, 87, 0.18), transparent 24%),
+        linear-gradient(180deg, #f8f3ea 0%, #f2ebde 100%);
     }
-    .container {
-      max-width: 920px;
+
+    .shell {
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 2rem 1.5rem;
+      padding: 36px 20px 56px;
     }
-    h1 {
-      font-size: 1.75rem;
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-card {
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: -20px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(201, 91, 51, 0.18), transparent 68%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid var(--line);
+      font-size: 12px;
       font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
-    .subtitle {
+
+    h1 {
+      font-size: clamp(2.15rem, 4vw, 3.2rem);
+      line-height: 1;
+      margin: 18px 0 14px;
+      max-width: 11ch;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 58ch;
       color: var(--muted);
-      font-size: 0.95rem;
-      margin-bottom: 2rem;
+      font-size: 1rem;
     }
-    .controls {
+
+    .status-panel {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .status-row {
       display: flex;
-      gap: 0.75rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
     }
-    button {
-      font-family: inherit;
+
+    .status-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .status-label {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .status-value {
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 0.82fr 1.18fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
       font-size: 0.95rem;
-      font-weight: 600;
-      padding: 0.65rem 1.25rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
-    button:active { transform: scale(0.98); }
-    .btn-start {
+
+    .upload-row,
+    .control-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    input[type="file"],
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      font: inherit;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--ink);
+    }
+
+    input[type="file"] {
+      padding: 14px;
+    }
+
+    textarea {
+      min-height: 220px;
+      padding: 16px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .primary {
       background: var(--accent);
       color: #fff;
     }
-    .btn-start:hover { background: var(--accent-hover); }
-    .btn-start:disabled {
-      background: var(--border);
-      color: var(--muted);
-      cursor: not-allowed;
+
+    .primary:hover { background: var(--accent-dark); }
+
+    .secondary {
+      background: #efe5d4;
+      color: var(--ink);
     }
-    .btn-stop {
-      background: #dc2626;
+
+    .secondary:hover { background: #e7dbc7; }
+
+    .danger {
+      background: #7d2b1d;
       color: #fff;
     }
-    .btn-stop:hover { background: #ef4444; }
-    .btn-stop:disabled {
-      background: var(--border);
+
+    .danger:hover { background: #632116; }
+
+    .success {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #ecfbf3;
+      color: var(--success);
+      border: 1px solid rgba(35, 122, 87, 0.16);
+      font-weight: 700;
+      display: none;
+    }
+
+    .muted {
       color: var(--muted);
-      cursor: not-allowed;
     }
-    .btn-test {
-      background: var(--border);
-      color: var(--text);
+
+    .summary {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
     }
-    .btn-test:hover { background: #3a3a45; }
-    .btn-test:disabled { opacity: 0.6; cursor: not-allowed; }
-    .phase-badge {
+
+    .question {
+      padding: 20px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #1f3b5b 0%, #22525d 100%);
+      color: #f6fbff;
+      margin-bottom: 16px;
+    }
+
+    .question small {
       display: inline-block;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
+      margin-bottom: 10px;
+      opacity: 0.76;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
     }
-    .phase-presenting { background: #1e3a5f; color: #93c5fd; }
-    .phase-asking { background: #422006; color: #fcd34d; }
-    .phase-listening { background: #14532d; color: #86efac; }
-    .phase-ended { background: var(--border); color: var(--muted); }
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
+
+    .answer-shell {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: stretch;
     }
-    .panel h2 {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 0 0 0.75rem 0;
+
+    .answer-actions {
+      display: grid;
+      gap: 12px;
+      align-content: start;
     }
-    .panel .content {
-      font-size: 0.95rem;
+
+    .feedback-note {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #fff7e8;
+      border: 1px solid rgba(201, 91, 51, 0.18);
+      color: #8a4a25;
+      display: none;
       white-space: pre-wrap;
-      word-break: break-word;
-      max-height: 160px;
-      overflow-y: auto;
     }
-    .panel .content.empty { color: var(--muted); font-style: italic; }
-    .question-box {
-      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-      border: 1px solid #4338ca;
-      border-radius: 12px;
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
     }
-    .question-box h2 { color: #c7d2fe; margin-top: 0; }
-    .question-box .content { color: #e0e7ff; max-height: none; }
-    .scores-row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-top: 1rem;
+
+    .score {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 15px;
     }
-    .score-card {
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      min-width: 100px;
+
+    .score strong {
+      display: block;
+      font-size: 1.6rem;
+      color: var(--accent-dark);
     }
-    .score-card strong { display: block; font-size: 1.25rem; color: var(--accent); }
-    .score-card span { font-size: 0.8rem; color: var(--muted); }
-    .report-summary {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-top: 1rem;
-      color: #cbd5e1;
+
+    .mono {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.9rem;
     }
-    .report-link {
-      display: inline-block;
-      margin-top: 1rem;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 900px) {
+      .hero, .layout, .answer-shell {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        max-width: none;
+      }
     }
-    .report-link:hover { text-decoration: underline; }
-    .ws-status {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .ws-status .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--muted);
-    }
-    .ws-status.connected .dot { background: var(--success); }
-    .top-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="top-bar">
-      <div>
-        <h1>AI Automated Interviewer</h1>
-        <p class="subtitle">Present your project (screen + voice). The system will ask context-aware questions and produce a score + feedback report.</p>
+  <div class="shell">
+    <section class="hero">
+      <div class="card hero-card">
+        <div class="eyebrow">Resume-driven interview</div>
+        <h1>Upload the resume. Record or type each answer. Send and continue.</h1>
+        <p class="lead">The interview starts from the uploaded resume, asks one question at a time, transcribes recorded answers with Whisper, and finishes with a five-metric report for communication, technical relevance, confidence, clarity, and overall quality.</p>
       </div>
-      <div class="ws-status" id="wsStatus">
-        <span class="dot"></span>
-        <span id="wsLabel">Connecting…</span>
+      <aside class="card status-panel">
+        <div class="status-row">
+          <span class="status-label">Connection</span>
+          <span class="status-value" id="wsLabel">Connecting</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Phase</span>
+          <span class="status-value" id="phaseLabel">Upload</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Questions completed</span>
+          <span class="status-value mono" id="questionProgress">0 / 5</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Uploaded file</span>
+          <span class="status-value mono" id="fileLabel">None</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="layout">
+      <div class="stack">
+        <div class="card panel">
+          <h2>Resume Upload</h2>
+          <div class="upload-row">
+            <input id="resumeFile" type="file" accept=".pdf,.docx,.txt,.md">
+            <button class="primary" id="uploadBtn">Upload Resume</button>
+          </div>
+          <div class="success" id="uploadMessage">File uploaded successfully.</div>
+          <p class="muted">The app will read the resume, extract the candidate context, and prepare the interview questions.</p>
+        </div>
       </div>
-    </div>
-    <div class="controls">
-      <button class="btn-start" id="btnStart">Start Interview</button>
-      <button class="btn-stop" id="btnStop" disabled>End Interview</button>
-      <button class="btn-test" id="btnTestVoice">Test voice (record 6s + transcribe)</button>
-    </div>
-    <div class="panel" id="voiceTestResult" style="display: none;">
-      <h2>Voice test result</h2>
-      <div id="voiceTestContent"></div>
-    </div>
-    <div id="phaseBadge" class="phase-badge phase-ended" style="display: none;">—</div>
-    <div class="question-box" id="questionBox" style="display: none;">
-      <h2>Current question</h2>
-      <div class="content" id="currentQuestion"></div>
-    </div>
-    <div class="panel">
-      <h2>Live transcript</h2>
-      <div class="content empty" id="transcript">No speech yet.</div>
-    </div>
-    <div class="panel">
-      <h2>Screen content (OCR)</h2>
-      <div class="content empty" id="screenContent">No screen content yet.</div>
-    </div>
-    <div class="panel" id="reportPanel" style="display: none;">
-      <h2>Report</h2>
-      <div id="reportScores" class="scores-row"></div>
-      <div id="reportSummary" class="report-summary"></div>
-      <a id="reportLink" class="report-link" href="#" target="_blank" rel="noopener">Open full report (HTML)</a>
-    </div>
+
+      <div class="stack">
+        <div class="card panel">
+          <h2>Interview</h2>
+          <div class="control-row" style="margin-bottom: 16px;">
+            <button class="primary" id="startBtn" disabled>Start Interview</button>
+            <button class="secondary" id="recordBtn" disabled>Record Answer</button>
+            <button class="danger" id="stopInterviewBtn" disabled>End Interview</button>
+          </div>
+          <div class="summary" style="margin-bottom: 16px;">
+            <strong>How it works</strong>
+            <p class="muted" id="interviewHint">Click `Start Interview`, answer the question by recording or typing, review the transcript in the answer box, then click `Send Answer` to move to the next question.</p>
+          </div>
+          <div class="question hidden" id="questionBox">
+            <small id="questionCount">Question 1</small>
+            <div id="currentQuestion">Your first question will appear here.</div>
+          </div>
+          <div class="answer-shell">
+            <textarea id="answerInput" placeholder="Your recorded transcript will appear here. You can also type or edit the answer before sending." disabled></textarea>
+            <div class="answer-actions">
+              <button class="primary" id="sendBtn" disabled>Send Answer</button>
+            </div>
+          </div>
+          <input id="audioCaptureInput" type="file" accept="audio/*" capture="microphone" class="hidden">
+          <div class="feedback-note" id="feedbackNote"></div>
+        </div>
+
+        <div class="card panel hidden" id="reportPanel">
+          <h2>Interview Report</h2>
+          <div id="scoreGrid" class="score-grid"></div>
+          <div class="summary" id="reportSummary"></div>
+          <a id="reportLink" class="mono" href="#" target="_blank" rel="noopener">Open HTML report</a>
+        </div>
+      </div>
+    </section>
   </div>
+
   <script>
-    const btnStart = document.getElementById('btnStart');
-    const btnStop = document.getElementById('btnStop');
-    const btnTestVoice = document.getElementById('btnTestVoice');
-    const voiceTestResult = document.getElementById('voiceTestResult');
-    const voiceTestContent = document.getElementById('voiceTestContent');
-    const phaseBadge = document.getElementById('phaseBadge');
+    const resumeFile = document.getElementById('resumeFile');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadMessage = document.getElementById('uploadMessage');
+    const startBtn = document.getElementById('startBtn');
+    const recordBtn = document.getElementById('recordBtn');
+    const stopInterviewBtn = document.getElementById('stopInterviewBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const answerInput = document.getElementById('answerInput');
+    const audioCaptureInput = document.getElementById('audioCaptureInput');
     const questionBox = document.getElementById('questionBox');
+    const questionCount = document.getElementById('questionCount');
     const currentQuestion = document.getElementById('currentQuestion');
-    const transcriptEl = document.getElementById('transcript');
-    const screenContentEl = document.getElementById('screenContent');
+    const feedbackNote = document.getElementById('feedbackNote');
     const reportPanel = document.getElementById('reportPanel');
-    const reportScores = document.getElementById('reportScores');
+    const scoreGrid = document.getElementById('scoreGrid');
     const reportSummary = document.getElementById('reportSummary');
     const reportLink = document.getElementById('reportLink');
-    const wsStatus = document.getElementById('wsStatus');
+    const phaseLabel = document.getElementById('phaseLabel');
+    const questionProgress = document.getElementById('questionProgress');
+    const fileLabel = document.getElementById('fileLabel');
     const wsLabel = document.getElementById('wsLabel');
 
     const wsUrl = (location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + location.host + '/ws';
     let ws = null;
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let recordedChunks = [];
+    let isRecording = false;
 
     function connectWs() {
       ws = new WebSocket(wsUrl);
       ws.onopen = () => {
-        wsStatus.classList.add('connected');
         wsLabel.textContent = 'Live';
       };
       ws.onclose = () => {
-        wsStatus.classList.remove('connected');
-        wsLabel.textContent = 'Reconnecting…';
+        wsLabel.textContent = 'Reconnecting';
         setTimeout(connectWs, 2000);
       };
-      ws.onmessage = (ev) => {
+      ws.onmessage = (event) => {
         try {
-          const msg = JSON.parse(ev.data);
-          if (msg.type === 'state' && msg.data) updateState(msg.data);
-          if (msg.type === 'report' && msg.data) showReport(msg.data);
-        } catch (e) {}
+          const message = JSON.parse(event.data);
+          if (message.type === 'state' && message.data) updateState(message.data);
+          if (message.type === 'report' && message.data) renderReport(message.data);
+        } catch (error) {}
       };
     }
     connectWs();
 
-    function updateState(data) {
-      phaseBadge.textContent = data.phase || '—';
-      phaseBadge.className = 'phase-badge phase-' + (data.phase || 'ended');
-      phaseBadge.style.display = 'inline-block';
-      if (data.current_question) {
-        questionBox.style.display = 'block';
-        currentQuestion.textContent = data.current_question;
-      }
-      transcriptEl.textContent = data.last_transcript || 'No speech yet.';
-      transcriptEl.classList.toggle('empty', !data.last_transcript);
-      screenContentEl.textContent = data.last_screen_content || 'No screen content yet.';
-      screenContentEl.classList.toggle('empty', !data.last_screen_content);
-      if (data.report && data.report.per_answer_len > 0) {
-        reportScores.innerHTML = [
-          ['Overall', data.report.overall_score],
-          ['Technical depth', data.report.technical_depth],
-          ['Clarity', data.report.clarity],
-          ['Originality', data.report.originality],
-          ['Understanding', data.report.understanding]
-        ].map(([label, val]) =>
-          `<div class="score-card"><strong>${Number(val).toFixed(1)}</strong><span>${label}</span></div>`
-        ).join('');
-        reportSummary.textContent = data.report.summary || '';
-        reportPanel.style.display = 'block';
-      }
-    }
+    function updateState(state) {
+      phaseLabel.textContent = formatPhase(state.phase || 'upload');
+      fileLabel.textContent = state.uploaded_filename || 'None';
+      questionProgress.textContent = `${state.answers_count || 0} / ${state.max_questions || 5}`;
 
-    function showReport(data) {
-      reportPanel.style.display = 'block';
-      reportScores.innerHTML = [
-        ['Overall', data.overall_score],
-        ['Technical depth', data.technical_depth],
-        ['Clarity', data.clarity],
-        ['Originality', data.originality],
-        ['Understanding', data.understanding]
-      ].map(([label, val]) =>
-        `<div class="score-card"><strong>${Number(val).toFixed(1)}</strong><span>${label}</span></div>`
-      ).join('');
-      reportSummary.textContent = data.summary || '';
-      if (data.report_url) {
-        reportLink.href = data.report_url;
-        reportLink.style.display = 'inline-block';
+      if (state.upload_message) {
+        uploadMessage.textContent = state.upload_message;
+        uploadMessage.style.display = 'block';
       } else {
-        reportLink.style.display = 'none';
+        uploadMessage.style.display = 'none';
       }
-      btnStart.disabled = false;
-      btnStop.disabled = true;
+
+      if (state.current_question) {
+        questionBox.classList.remove('hidden');
+        currentQuestion.textContent = state.current_question;
+        questionCount.textContent = `Question ${(state.answers_count || 0) + 1}`;
+      } else {
+        questionBox.classList.add('hidden');
+      }
+
+      if ((state.feedback_notes || []).length) {
+        feedbackNote.style.display = 'block';
+        feedbackNote.textContent = state.feedback_notes[state.feedback_notes.length - 1];
+      } else {
+        feedbackNote.style.display = 'none';
+      }
+
+      const canStart = !!state.is_ready && !state.current_question && state.phase !== 'ended';
+      startBtn.disabled = !canStart;
+      const canAnswer = !!state.current_question && state.phase === 'answering';
+      recordBtn.disabled = !canAnswer;
+      stopInterviewBtn.disabled = !(state.phase === 'answering' || (state.answers_count || 0) > 0);
+      answerInput.disabled = !canAnswer;
+      sendBtn.disabled = !canAnswer || !answerInput.value.trim();
+
+      if (state.last_transcript && !isRecording && !answerInput.value.trim()) {
+        answerInput.value = state.last_transcript;
+      }
+
+      if (state.report) {
+        renderReport(state.report);
+      }
     }
 
-    btnStart.addEventListener('click', async () => {
-      btnStart.disabled = true;
-      btnStop.disabled = false;
-      try {
-        const r = await fetch('/interview/start', { method: 'POST' });
-        const j = await r.json();
-        if (j.status !== 'started' && j.status !== 'already_running') {
-          btnStart.disabled = false;
-          btnStop.disabled = true;
-          alert(j.message || 'Failed to start');
+    function renderReport(report) {
+      reportPanel.classList.remove('hidden');
+      scoreGrid.innerHTML = [
+        ['Communication', report.communication],
+        ['Technical relevance', report.technical_relevance],
+        ['Confidence', report.confidence],
+        ['Clarity', report.clarity],
+        ['Overall quality', report.overall_quality],
+        ['Overall score', report.overall_score]
+      ].map(([label, value]) => `
+        <div class="score">
+          <span>${label}</span>
+          <strong>${Number(value || 0).toFixed(1)}</strong>
+        </div>
+      `).join('');
+
+      reportSummary.textContent = report.summary || 'Report generated successfully.';
+      if (report.report_url) {
+        reportLink.href = report.report_url;
+        reportLink.classList.remove('hidden');
+      } else {
+        reportLink.classList.add('hidden');
+      }
+
+      startBtn.disabled = true;
+      recordBtn.disabled = true;
+      sendBtn.disabled = true;
+      stopInterviewBtn.disabled = true;
+      answerInput.disabled = true;
+      questionBox.classList.add('hidden');
+    }
+
+    function formatPhase(phase) {
+      return phase.charAt(0).toUpperCase() + phase.slice(1);
+    }
+
+    function getRecordingMimeType() {
+      const preferred = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/mp4'
+      ];
+      for (const type of preferred) {
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(type)) {
+          return type;
         }
-      } catch (e) {
-        btnStart.disabled = false;
-        btnStop.disabled = true;
-        alert('Network error: ' + e.message);
+      }
+      return '';
+    }
+
+    function canUseDirectRecording() {
+      const secureLocal =
+        window.isSecureContext ||
+        location.hostname === 'localhost' ||
+        location.hostname === '127.0.0.1';
+      return !!(secureLocal && navigator.mediaDevices && window.MediaRecorder);
+    }
+
+    async function transcribeRecordedAudio(blob, mimeType) {
+      const extension = mimeType.includes('mp4') ? '.mp4' : '.webm';
+      const formData = new FormData();
+      formData.append('audio', new File([blob], `answer${extension}`, { type: mimeType || 'audio/webm' }));
+
+      feedbackNote.style.display = 'block';
+      feedbackNote.textContent = 'Transcribing your recording...';
+      const response = await fetch('/interview/transcribe', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Transcription failed.');
+      }
+      answerInput.value = data.transcript || '';
+      feedbackNote.style.display = 'none';
+      sendBtn.disabled = !answerInput.value.trim();
+    }
+
+    async function stopBrowserRecording() {
+      if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+        return;
+      }
+      mediaRecorder.stop();
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+      }
+    }
+
+    uploadBtn.addEventListener('click', async () => {
+      const file = resumeFile.files && resumeFile.files[0];
+      if (!file) {
+        alert('Please select a resume file first.');
+        return;
+      }
+
+      uploadBtn.disabled = true;
+      uploadMessage.style.display = 'block';
+      uploadMessage.textContent = 'Uploading and extracting resume details...';
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch('/resume/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Upload failed.');
+        }
+        uploadMessage.textContent = data.message || 'File uploaded successfully.';
+        answerInput.value = '';
+        feedbackNote.style.display = 'none';
+        reportPanel.classList.add('hidden');
+      } catch (error) {
+        uploadMessage.textContent = error.message || 'Upload failed.';
+      } finally {
+        uploadBtn.disabled = false;
+        pollStatus();
       }
     });
 
-    btnStop.addEventListener('click', async () => {
+    startBtn.addEventListener('click', async () => {
+      startBtn.disabled = true;
       try {
-        await fetch('/interview/stop', { method: 'POST' });
-      } catch (e) {}
-      btnStop.disabled = true;
-    });
-
-    btnTestVoice.addEventListener('click', async () => {
-      btnTestVoice.disabled = true;
-      voiceTestResult.style.display = 'block';
-      voiceTestContent.textContent = 'Recording 6 seconds… speak now. Then transcribing…';
-      try {
-        const r = await fetch('/api/audio/test', { method: 'POST' });
-        const j = await r.json();
-        if (j.ok) {
-          voiceTestContent.innerHTML = '<strong>Transcript:</strong> ' + (j.transcript || '(none)') + '<br><small>Peak level: ' + (j.peak != null ? j.peak : '') + '</small>';
-        } else {
-          voiceTestContent.innerHTML = '<strong>Error:</strong> ' + (j.error || 'Unknown') + (j.peak != null ? '<br><small>Peak: ' + j.peak + '</small>' : '');
+        const response = await fetch('/interview/start', { method: 'POST' });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Unable to start interview.');
         }
-      } catch (e) {
-        voiceTestContent.textContent = 'Request failed: ' + e.message;
+        answerInput.value = '';
+        feedbackNote.style.display = 'none';
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        pollStatus();
       }
-      btnTestVoice.disabled = false;
     });
 
-    // Poll status on load and when tab visible (fallback if WS fails)
+    recordBtn.addEventListener('click', async () => {
+      if (isRecording) {
+        await stopBrowserRecording();
+        return;
+      }
+
+      if (!canUseDirectRecording()) {
+        feedbackNote.style.display = 'block';
+        feedbackNote.textContent = 'Direct browser recording needs localhost or HTTPS. Opening audio upload/recorder fallback now.';
+        audioCaptureInput.click();
+        return;
+      }
+
+      try {
+        feedbackNote.style.display = 'block';
+        feedbackNote.textContent = 'Recording started. Click the same button again to stop and transcribe.';
+        recordedChunks = [];
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mimeType = getRecordingMimeType();
+        mediaRecorder = mimeType ? new MediaRecorder(mediaStream, { mimeType }) : new MediaRecorder(mediaStream);
+        isRecording = true;
+        recordBtn.textContent = 'Stop Recording';
+        recordBtn.classList.remove('secondary');
+        recordBtn.classList.add('danger');
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) {
+            recordedChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = async () => {
+          isRecording = false;
+          recordBtn.textContent = 'Record Answer';
+          recordBtn.classList.remove('danger');
+          recordBtn.classList.add('secondary');
+          const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+          try {
+            await transcribeRecordedAudio(blob, mediaRecorder.mimeType || 'audio/webm');
+          } catch (error) {
+            feedbackNote.style.display = 'block';
+            feedbackNote.textContent = error.message || 'Transcription failed.';
+          } finally {
+            pollStatus();
+          }
+        };
+
+        mediaRecorder.start();
+      } catch (error) {
+        isRecording = false;
+        feedbackNote.style.display = 'block';
+        feedbackNote.textContent = error.message || 'Unable to access microphone.';
+        pollStatus();
+      }
+    });
+
+    audioCaptureInput.addEventListener('change', async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) {
+        return;
+      }
+      try {
+        feedbackNote.style.display = 'block';
+        feedbackNote.textContent = 'Uploading audio and transcribing...';
+        await transcribeRecordedAudio(file, file.type || 'audio/webm');
+      } catch (error) {
+        feedbackNote.style.display = 'block';
+        feedbackNote.textContent = error.message || 'Transcription failed.';
+      } finally {
+        audioCaptureInput.value = '';
+        pollStatus();
+      }
+    });
+
+    sendBtn.addEventListener('click', async () => {
+      const answer = answerInput.value.trim();
+      if (!answer) {
+        alert('Please record or type an answer before sending.');
+        return;
+      }
+      sendBtn.disabled = true;
+      try {
+        const response = await fetch('/interview/answer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answer })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Could not send answer.');
+        }
+        answerInput.value = '';
+        if (data.feedback_snippet) {
+          feedbackNote.style.display = 'block';
+          feedbackNote.textContent = data.feedback_snippet;
+        }
+        if (data.report) {
+          renderReport(data.report);
+        }
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        pollStatus();
+      }
+    });
+
+    stopInterviewBtn.addEventListener('click', async () => {
+      try {
+        if (isRecording) {
+          await stopBrowserRecording();
+        }
+        const formData = new FormData();
+        formData.append('reason', 'Interview ended manually.');
+        const response = await fetch('/interview/stop', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        if (data.report) {
+          renderReport(data.report);
+        }
+      } catch (error) {}
+      pollStatus();
+    });
+
+    answerInput.addEventListener('input', () => {
+      sendBtn.disabled = !answerInput.value.trim();
+    });
+
     async function pollStatus() {
       try {
-        const r = await fetch('/interview/status');
-        const j = await r.json();
-        if (j.state) updateState(j.state);
-        if (j.report) showReport(j.report);
-      } catch (e) {}
+        const response = await fetch('/interview/status');
+        const data = await response.json();
+        if (data.state) updateState(data.state);
+        if (data.report) renderReport(data.report);
+      } catch (error) {}
     }
-    setInterval(pollStatus, 4000);
-    pollStatus();
 
-    // Fetch last report on load
-    fetch('/interview/report').then(r => r.json()).then(j => {
-      if (j.report) showReport(j.report);
-    }).catch(() => {});
+    setInterval(pollStatus, 3000);
+    pollStatus();
+    fetch('/interview/report')
+      .then(response => response.json())
+      .then(data => {
+        if (data.report) renderReport(data.report);
+      })
+      .catch(() => {});
   </script>
 </body>
 </html>
